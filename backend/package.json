@@ -1,7 +1,0 @@
-{
-  "name": "chatbot-backend",
-  "version": "1.0.0",
-  "description": "Backend API pour IA conversationnelle support client (Python + Flask)",
-  "archived": true,
-  "note": "Ce projet utilise maintenant Python/Flask à la place de Node.js/Express"
-}
