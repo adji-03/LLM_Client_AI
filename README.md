@@ -14,11 +14,11 @@ Une application complète de support client alimentée par IA avec:
 ## 📋 Structure du Projet
 
 ```
-├── backend/          # API Express
-│   ├── server.js     # Serveur principal
-│   ├── package.json
-│   ├── .env.example
-│   └── render.yaml   # Config Render
+├── backend/          # API Flask
+│   ├── app.py        # Serveur principal Flask
+│   ├── requirements.txt  # Dépendances Python
+│   ├── .env.example  # Variables d'environnement
+│   └── render.yaml   # Config Render (si tu déploies)
 ├── frontend/         # Application React
 │   ├── src/
 │   │   ├── App.jsx
