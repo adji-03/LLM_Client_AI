@@ -10,7 +10,9 @@ function App() {
   const [error, setError] = useState('')
   const messagesEndRef = useRef(null)
 
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+  // src/config.js ou en haut de ton composant
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://llm-client-ai.onrender.com'
+
 
   // Initialiser une nouvelle conversation au chargement
   useEffect(() => {
