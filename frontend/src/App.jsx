@@ -11,7 +11,7 @@ function App() {
   const messagesEndRef = useRef(null)
 
   // src/config.js ou en haut de ton composant
-//const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://llm-client-ai.onrender.com'
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://llm-client-ai.onrender.com'
 
 
   // Initialiser une nouvelle conversation au chargement
