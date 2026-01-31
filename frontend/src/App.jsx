@@ -10,9 +10,9 @@ function App() {
   const [error, setError] = useState('')
   const messagesEndRef = useRef(null)
 
-  // src/config.js ou en haut de ton composant
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://llm-client-ai.onrender.com'
-
+  // URL du backend (déployé ou fallback local)
+  const BACKEND_URL =
+    import.meta.env.VITE_BACKEND_URL || 'https://llm-client-ai-2.onrender.com'
 
   // Initialiser une nouvelle conversation au chargement
   useEffect(() => {
@@ -24,9 +24,15 @@ function App() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // Fonction pour initialiser la conversation
   const initializeConversation = async () => {
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/conversation/new`)
+      // POST vers /api/conversation/new
+      const response = await axios.post(`${BACKEND_URL}/api/conversation/new`, {}, {
+        timeout: 30000,
+        headers: { 'Content-Type': 'application/json' }
+      })
+
       setConversationId(response.data.conversationId)
       setMessages([
         {
@@ -38,47 +44,44 @@ function App() {
       setError('')
     } catch (err) {
       console.error('Erreur lors de l\'initialisation:', err)
-      setConversationId(Date.now().toString())
+      setConversationId(Date.now().toString()) // fallback
+      setMessages([
+        {
+          id: 1,
+          text: "Bonjour! Je suis votre assistant support client IA. Comment puis-je vous aider?",
+          sender: 'assistant'
+        }
+      ])
     }
   }
 
+  // Fonction pour envoyer un message
   const sendMessage = async (e) => {
     e.preventDefault()
-    
     if (!input.trim() || !conversationId || loading) return
 
     const userMessage = input.trim()
     setInput('')
-    setMessages(prev => [...prev, {
-      id: Date.now(),
-      text: userMessage,
-      sender: 'user'
-    }])
+    setMessages(prev => [...prev, { id: Date.now(), text: userMessage, sender: 'user' }])
     setLoading(true)
     setError('')
 
     try {
       const response = await axios.post(
         `${BACKEND_URL}/api/chat`,
+        { message: userMessage, conversationId },
         {
-          message: userMessage,
-          conversationId
-        },
-        {
-          timeout: 60000
+          timeout: 60000,
+          headers: { 'Content-Type': 'application/json' }
         }
       )
 
-      if (response.data.response) {
-        setMessages(prev => [...prev, {
-          id: Date.now(),
-          text: response.data.response,
-          sender: 'assistant'
-        }])
+      if (response.data?.response) {
+        setMessages(prev => [...prev, { id: Date.now(), text: response.data.response, sender: 'assistant' }])
       }
     } catch (err) {
       let errorMessage = 'Erreur de connexion au serveur'
-      
+
       if (err.response) {
         errorMessage = err.response.data?.error || errorMessage
       } else if (err.code === 'ECONNABORTED') {
@@ -86,11 +89,11 @@ function App() {
       } else if (!window.navigator.onLine) {
         errorMessage = 'Pas de connexion Internet'
       }
-      
+
       setError(errorMessage)
       setMessages(prev => [...prev, {
         id: Date.now(),
-        text: 'Désolé, une erreur s\'est produite. Veuillez réessayer.',
+        text: "Désolé, une erreur s'est produite. Veuillez réessayer.",
         sender: 'assistant'
       }])
     } finally {
@@ -106,19 +109,15 @@ function App() {
     <div className="chat-container">
       <div className="chat-header">
         <div className="header-buttons">
-          <span style={{ flex: 1, textAlign: 'center' }}>Support Client IA </span>
-          <button className="new-chat-btn" onClick={handleNewChat}>
-            ↻ Nouveau
-          </button>
+          <span style={{ flex: 1, textAlign: 'center' }}>Support Client IA</span>
+          <button className="new-chat-btn" onClick={handleNewChat}>↻ Nouveau</button>
         </div>
       </div>
 
       <div className="messages-container">
-        {messages.map((msg) => (
+        {messages.map(msg => (
           <div key={msg.id} className={`message ${msg.sender}`}>
-            <div className="message-content">
-              {msg.text}
-            </div>
+            <div className="message-content">{msg.text}</div>
           </div>
         ))}
         {loading && (
@@ -133,11 +132,7 @@ function App() {
         <div ref={messagesEndRef} />
       </div>
 
-      {error && (
-        <div className="error-message">
-          ⚠️ {error}
-        </div>
-      )}
+      {error && <div className="error-message">⚠️ {error}</div>}
 
       <form onSubmit={sendMessage} className="input-area">
         <div className="input-group">
